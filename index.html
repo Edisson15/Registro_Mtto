@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1e6f5c" />
+    <title>Ordenes de Mantenimiento</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="login-screen" id="loginScreen">
+      <form class="panel login-card" id="loginForm">
+        <p class="eyebrow">Mantenimiento</p>
+        <h1>Ingreso</h1>
+        <p class="muted">Usa una cuenta de coordinador o tecnico para continuar.</p>
+
+        <label for="username">Usuario</label>
+        <input id="username" name="username" autocomplete="username" required placeholder="admin" />
+
+        <label for="password">Contrasena</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="admin123" />
+
+        <button class="primary-button" type="submit">Entrar</button>
+        <p class="error-message" id="loginError" role="alert"></p>
+
+        <div class="demo-users">
+          <strong>Cuentas demo</strong>
+          <span>admin / admin123</span>
+          <span>carlos / 1234</span>
+          <span>laura / 1234</span>
+          <span>miguel / 1234</span>
+        </div>
+      </form>
+    </section>
+
+    <div class="app-shell hidden" id="appShell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Mantenimiento</p>
+          <h1>Ordenes de trabajo</h1>
+        </div>
+        <div class="user-actions">
+          <div class="user-pill">
+            <strong id="userName"></strong>
+            <span id="userRole"></span>
+          </div>
+          <button class="icon-button" id="seedDataButton" type="button" title="Cargar datos de ejemplo">
+            <span aria-hidden="true">+</span>
+          </button>
+          <button class="icon-button logout-button" id="logoutButton" type="button" title="Cerrar sesion">
+            <span aria-hidden="true">x</span>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="panel identity-panel">
+          <label for="technicianSelect" class="tech-only">Tecnico</label>
+          <select id="technicianSelect" class="tech-only"></select>
+          <p class="identity-note">Los permisos dependen de la cuenta con la que ingresaste.</p>
+        </section>
+
+        <nav class="tabs" aria-label="Secciones">
+          <button class="tab active" type="button" data-tab="dashboard">Tablero</button>
+          <button class="tab" type="button" data-tab="orders">Ordenes</button>
+          <button class="tab" type="button" data-tab="new-order">Nueva</button>
+          <button class="tab" type="button" data-tab="team">Equipo</button>
+        </nav>
+
+        <section class="screen active" id="dashboardScreen">
+          <div class="metrics" id="metrics"></div>
+          <div class="panel" id="activityPanel">
+            <div class="section-heading">
+              <h2>Actividad reciente</h2>
+              <span id="activityCount"></span>
+            </div>
+            <div id="activityFeed" class="activity-feed"></div>
+          </div>
+        </section>
+
+        <section class="screen" id="ordersScreen">
+          <div class="filters">
+            <select id="statusFilter">
+              <option value="all">Todos los estados</option>
+              <option value="pending">Pendiente</option>
+              <option value="assigned">Asignada</option>
+              <option value="in-progress">En ejecucion</option>
+              <option value="done">Finalizada</option>
+            </select>
+            <input id="searchInput" type="search" placeholder="Buscar orden, equipo o ubicacion" />
+          </div>
+          <div id="ordersList" class="orders-list"></div>
+        </section>
+
+        <section class="screen" id="newOrderScreen">
+          <form class="panel form-panel" id="orderForm">
+            <div class="section-heading">
+              <h2>Nueva orden</h2>
+              <span>Registro rapido</span>
+            </div>
+
+            <label for="assetInput">Equipo o activo</label>
+            <input id="assetInput" required placeholder="Ej. Compresor 3" />
+
+            <label for="locationInput">Ubicacion</label>
+            <input id="locationInput" required placeholder="Ej. Planta norte" />
+
+            <label for="priorityInput">Prioridad</label>
+            <select id="priorityInput">
+              <option value="Alta">Alta</option>
+              <option value="Media" selected>Media</option>
+              <option value="Baja">Baja</option>
+            </select>
+
+            <label for="assignedInput">Asignar a</label>
+            <select id="assignedInput"></select>
+
+            <label for="descriptionInput">Descripcion del problema</label>
+            <textarea id="descriptionInput" rows="4" required placeholder="Describe el mantenimiento requerido"></textarea>
+
+            <button class="primary-button" type="submit">Crear y enviar orden</button>
+          </form>
+        </section>
+
+        <section class="screen" id="teamScreen">
+          <div class="panel form-panel">
+            <div class="section-heading">
+              <h2>Equipo tecnico</h2>
+              <span id="teamCount"></span>
+            </div>
+            <form id="technicianForm" class="technician-form">
+              <input id="technicianNameInput" required placeholder="Nombre del tecnico" />
+              <input id="technicianUsernameInput" required autocomplete="off" placeholder="Usuario de acceso" />
+              <input id="technicianPasswordInput" required autocomplete="new-password" type="password" placeholder="Contrasena" />
+              <input id="technicianPhoneInput" inputmode="tel" placeholder="WhatsApp, ej. 573001112233" />
+              <button class="secondary-button" type="submit">Agregar tecnico</button>
+            </form>
+            <div id="teamList" class="team-list"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="orderDialog">
+      <form method="dialog" class="dialog-card">
+        <button class="close-button" value="cancel" aria-label="Cerrar">x</button>
+        <div id="orderDetail"></div>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>

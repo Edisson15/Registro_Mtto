@@ -1,0 +1,13 @@
+{
+  "name": "ordenes-mantenimiento",
+  "version": "0.2.0",
+  "private": true,
+  "description": "App movil/PWA para ordenes de mantenimiento con backend propio.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check app.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -562,5 +562,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`App de mantenimiento lista en http://localhost:${PORT}`);
+  console.log(`App de mantenimiento lista en puerto ${PORT}`);
 });

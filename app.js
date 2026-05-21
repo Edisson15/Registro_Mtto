@@ -703,17 +703,35 @@ function openTechnicianEditor(technician) {
   }
 }
 
-elements.ordersList.addEventListener("click", (event) => {
+elements.ordersList.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-action]");
   if (!button) return;
 
   const { action, id } = button.dataset;
+
   if (action === "detail") openOrderDetail(id);
+
   if (action === "edit-order") openOrderEditor(id);
+
   if (action === "start") updateOrderStatus(id, "in-progress");
+
   if (action === "finish") updateOrderStatus(id, "done");
+
   if (action === "report") openReport(id);
-  if (action === "delete-order") deleteOrder(id);
+
+  if (action === "delete-order") {
+    const order = getOrder(id);
+
+    if (!order) return;
+
+    if (!window.confirm(`Eliminar la orden ${order.code}?`)) return;
+
+    await api(`/api/orders/${id}`, {
+      method: "DELETE",
+    });
+
+    await refreshData();
+  }
 });
 
 if ("serviceWorker" in navigator) {

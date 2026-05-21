@@ -216,21 +216,56 @@ function renderActivities() {
 function orderStatusActions(order) {
   const canStart = !canManage() && order.status === "assigned";
   const canFinish = !canManage() && order.status === "in-progress";
-  const reportButton = order.status === "done"
-    ? `<button class="status-button" type="button" data-action="report" data-id="${order.id}">Reporte PDF</button>`
+
+  const reportButton =
+    order.status === "done"
+      ? `<button class="status-button" type="button" data-action="report" data-id="${order.id}">
+          Reporte PDF
+        </button>`
+      : "";
+
+  const deleteButton = canManage()
+    ? `<button class="status-button danger" type="button" data-action="delete-order" data-id="${order.id}">
+        Eliminar
+      </button>`
     : "";
 
   return `
     <div class="actions-row">
-      <button class="status-button" type="button" data-action="detail" data-id="${order.id}">Ver detalle</button>
-      ${canManage() ? `<button class="status-button" type="button" data-action="edit-order" data-id="${order.id}">Editar</button>` : ""}
-      ${canStart ? `<button class="status-button" type="button" data-action="start" data-id="${order.id}">Iniciar</button>` : ""}
-      ${canFinish ? `<button class="status-button done" type="button" data-action="finish" data-id="${order.id}">Finalizar</button>` : ""}
+      <button class="status-button" type="button" data-action="detail" data-id="${order.id}">
+        Ver detalle
+      </button>
+
+      ${
+        canManage()
+          ? `<button class="status-button" type="button" data-action="edit-order" data-id="${order.id}">
+              Editar
+            </button>`
+          : ""
+      }
+
+      ${
+        canStart
+          ? `<button class="status-button" type="button" data-action="start" data-id="${order.id}">
+              Iniciar
+            </button>`
+          : ""
+      }
+
+      ${
+        canFinish
+          ? `<button class="status-button done" type="button" data-action="finish" data-id="${order.id}">
+              Finalizar
+            </button>`
+          : ""
+      }
+
       ${reportButton}
+
+      ${deleteButton}
     </div>
   `;
 }
-
 function renderOrders() {
   const orders = visibleOrders();
   elements.ordersList.innerHTML = orders.length
@@ -533,6 +568,23 @@ async function seedData() {
   await api("/api/seed", { method: "POST", body: "{}" });
   await refreshData();
 }
+async function deleteOrder(orderId) {
+  const order = getOrder(orderId);
+
+  if (!order) return;
+
+  const confirmed = window.confirm(
+    `¿Seguro que deseas eliminar la orden ${order.code}?`
+  );
+
+  if (!confirmed) return;
+
+  await api(`/api/orders/${orderId}`, {
+    method: "DELETE",
+  });
+
+  await refreshData();
+}
 
 function openReport(orderId) {
   const token = encodeURIComponent(state.session.token);
@@ -661,6 +713,7 @@ elements.ordersList.addEventListener("click", (event) => {
   if (action === "start") updateOrderStatus(id, "in-progress");
   if (action === "finish") updateOrderStatus(id, "done");
   if (action === "report") openReport(id);
+  if (action === "delete-order") deleteOrder(id);
 });
 
 if ("serviceWorker" in navigator) {

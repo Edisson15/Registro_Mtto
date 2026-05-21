@@ -2,6 +2,7 @@ const http = require("node:http");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const dbPg = require("./database");
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = __dirname;
@@ -583,6 +584,82 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`App de mantenimiento lista en http://localhost:${PORT}`);
-});
+async function initializeDatabase() {
+  await dbPg.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      username TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      role TEXT NOT NULL,
+      technician_id TEXT
+    );
+  `);
+
+  await dbPg.query(`
+    CREATE TABLE IF NOT EXISTS technicians (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      user_id TEXT,
+      phone TEXT
+    );
+  `);
+
+  await dbPg.query(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id TEXT PRIMARY KEY,
+      code TEXT NOT NULL,
+      asset TEXT NOT NULL,
+      location TEXT NOT NULL,
+      priority TEXT NOT NULL,
+      assigned_to TEXT,
+      description TEXT NOT NULL,
+      status TEXT NOT NULL,
+      intervention_description TEXT,
+      evidence JSONB,
+      created_at TIMESTAMP,
+      finished_at TIMESTAMP
+    );
+  `);
+  const existingAdmin = await dbPg.query(
+    "SELECT * FROM users WHERE username = $1",
+    ["admin"]
+  );
+
+  if (existingAdmin.rows.length === 0) {
+    await dbPg.query(
+      `
+      INSERT INTO users (
+        id,
+        name,
+        username,
+        password,
+        role,
+        technician_id
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
+      `,
+      [
+        "user-admin",
+        "Coordinador",
+        "admin",
+        hashPassword("admin123"),
+        "admin",
+        null,
+      ]
+    );
+
+    console.log("Usuario admin creado.");
+  }
+  console.log("Base de datos PostgreSQL inicializada.");
+}
+
+initializeDatabase()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`App de mantenimiento lista en puerto ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error conectando PostgreSQL:", error);
+  });

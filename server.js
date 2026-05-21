@@ -355,6 +355,24 @@ async function handleApi(req, res, url) {
     await writeDb(db);
     return sendJson(res, 200, { order });
   }
+  
+  if (req.method === "DELETE" && orderMatch) {
+    requireAdmin(user);
+
+    const order = db.orders.find((item) => item.id === orderMatch[1]);
+
+    if (!order) {
+      return sendJson(res, 404, { error: "Orden no encontrada." });
+    }
+
+    db.orders = db.orders.filter((item) => item.id !== order.id);
+
+    addActivity(db, `${order.code} fue eliminada por el coordinador.`, order.id);
+
+    await writeDb(db);
+
+    return sendJson(res, 200, { ok: true });
+  }
 
   if (req.method === "POST" && url.pathname === "/api/technicians") {
     requireAdmin(user);

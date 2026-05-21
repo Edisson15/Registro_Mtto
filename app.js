@@ -223,7 +223,10 @@ function orderStatusActions(order) {
   return `
     <div class="actions-row">
       <button class="status-button" type="button" data-action="detail" data-id="${order.id}">Ver detalle</button>
-      ${canManage() ? `<button class="status-button" type="button" data-action="edit-order" data-id="${order.id}">Editar</button>` : ""}
+      ${canManage() ? `
+  <button class="status-button" type="button" data-action="edit-order" data-id="${order.id}">Editar</button>
+  <button class="status-button danger" type="button" data-action="delete-order" data-id="${order.id}">Eliminar</button>
+` : ""}
       ${canStart ? `<button class="status-button" type="button" data-action="start" data-id="${order.id}">Iniciar</button>` : ""}
       ${canFinish ? `<button class="status-button done" type="button" data-action="finish" data-id="${order.id}">Finalizar</button>` : ""}
       ${reportButton}
@@ -666,5 +669,17 @@ elements.ordersList.addEventListener("click", (event) => {
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/service-worker.js").catch(() => {});
 }
+  if (action === "delete-order") {
+    const order = getOrder(id);
 
+    if (!window.confirm(`Deseas eliminar la orden ${order.code}?`)) {
+      return;
+    }
+
+    api(`/api/orders/${id}`, {
+      method: "DELETE",
+    })
+      .then(refreshData)
+      .catch((error) => window.alert(error.message));
+  }
 bootstrap();

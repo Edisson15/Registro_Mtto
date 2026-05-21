@@ -155,7 +155,15 @@ function logout() {
   state.session = null;
   state.role = null;
   state.activeTechnicianId = null;
+
   localStorage.removeItem(SESSION_KEY);
+
+  
+  elements.loginForm.reset();
+
+  
+  elements.loginError.textContent = "";
+
   showLogin();
 }
 
